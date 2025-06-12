@@ -1,7 +1,7 @@
 export default {
   async fetch(request, env) {
     const inputs = {
-      prompt: "শেষ পর্যন্ত সবকিছুই এক সময় স্মৃতি হয়ে যায় bangla realistic image",
+      prompt: "dhaka realistic image",
     };
 
     const response = await env.AI.run(
