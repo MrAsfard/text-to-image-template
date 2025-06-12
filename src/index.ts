@@ -3,23 +3,30 @@ export default {
     if (request.method === "GET") {
       return new Response(`
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         <head>
+          <meta charset="UTF-8">
           <title>AI Image Generator</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
           <style>
-            body { font-family: Arial; text-align: center; padding: 40px; background: #f5f5f5; }
-            input, button { padding: 10px; font-size: 16px; margin: 10px; }
-            img { margin-top: 20px; max-width: 100%; border: 1px solid #ccc; border-radius: 8px; }
-            .download-btn { margin-top: 15px; display: inline-block; padding: 10px 20px; background: #28a745; color: #fff; border-radius: 5px; text-decoration: none; }
+            body { background: #f8f9fa; padding: 40px; }
+            .container { max-width: 600px; margin: auto; }
+            .spinner-border { width: 3rem; height: 3rem; }
+            #output img { max-width: 100%; border-radius: 10px; margin-top: 20px; }
+            .download-btn { margin-top: 15px; display: inline-block; }
           </style>
         </head>
         <body>
-          <h2>🖼 AI Text to Image Generator</h2>
-          <form id="imageForm">
-            <input type="text" id="prompt" placeholder="Enter a prompt..." required>
-            <button type="submit">Generate</button>
-          </form>
-          <div id="output"></div>
+          <div class="container text-center">
+            <h2 class="mb-4">🎨 AI Image Generator</h2>
+            <form id="imageForm">
+              <div class="input-group mb-3">
+                <input type="text" id="prompt" class="form-control" placeholder="Enter your prompt..." required>
+                <button class="btn btn-primary" type="submit">Generate</button>
+              </div>
+            </form>
+            <div id="output"></div>
+          </div>
 
           <script>
             const form = document.getElementById('imageForm');
@@ -28,17 +35,29 @@ export default {
             form.addEventListener('submit', async (e) => {
               e.preventDefault();
               const prompt = document.getElementById('prompt').value;
-              output.innerHTML = '⏳ Generating image...';
-
-              const res = await fetch("/?prompt=" + encodeURIComponent(prompt));
-              const blob = await res.blob();
-              const imgUrl = URL.createObjectURL(blob);
-
               output.innerHTML = \`
-                <img src="\${imgUrl}" alt="Generated Image"/>
-                <br/>
-                <a href="\${imgUrl}" download="ai-image.png" class="download-btn">⬇ Download</a>
+                <div class="d-flex justify-content-center mt-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Generating...</span>
+                  </div>
+                </div>
+                <p class="mt-2 text-muted">Generating image...</p>
               \`;
+
+              try {
+                const res = await fetch("/?prompt=" + encodeURIComponent(prompt));
+                const blob = await res.blob();
+                const imgUrl = URL.createObjectURL(blob);
+
+                output.innerHTML = \`
+                  <img src="\${imgUrl}" alt="Generated Image"/>
+                  <div>
+                    <a href="\${imgUrl}" download="ai-image.png" class="btn btn-success download-btn">⬇ Download Image</a>
+                  </div>
+                \`;
+              } catch (err) {
+                output.innerHTML = '<div class="alert alert-danger mt-3">❌ Failed to generate image.</div>';
+              }
             });
           </script>
         </body>
@@ -49,7 +68,7 @@ export default {
     }
 
     const url = new URL(request.url);
-    const prompt = url.searchParams.get("prompt") || "a futuristic cityscape";
+    const prompt = url.searchParams.get("prompt") || "a beautiful futuristic landscape";
 
     const inputs = { prompt };
 
